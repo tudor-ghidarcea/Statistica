@@ -1,0 +1,154 @@
+---
+title: "Chaos Game"
+subtitle: "Implementarea noastra"
+author: "Ciobotaru Robert, Dumitrescu Dumitru-Dragos, Ghidarcea Tudor-Alexandru"
+
+output:
+  word_document: default
+  pdf_document: default
+---
+
+## Descriere
+Acest proiect reprezinta implementarea noastra in R a conceptului *Jocului Haosului*.
+Aplicatia noastra permite schimbarea culorii formei generate(*Triunghiul lui Sierpinski*), permite alegerea
+formelor din care este compus triunghiul, si prin modificarea cu ajutorul ului slider a numarului de iteratii, 
+se modifica gradul de definire al triunghiului. Proiectul nostru contine fisierele "generare.r", "server.r",
+"ui.r" si acest document, "chaos_game.rmd".\
+
+## Cod sursa pentru "generare.r:"
+&nbsp;
+"
+chaos.gen<-function(iteratii,culoare,forma_folosita){\
+z<-iteratii\
+cul<-culoare\
+forma<-forma_folosita\
+a <- c(0,10,5,0)\
+b <- c(0,0,8.66,0)\
+for (i in 1:z){ \
+  var <- sample(3)\
+  if (var[1]==1){\
+    a <- c(a, (a[length(a)] + 0)/2)\
+    b <- c(b, (b[length(b)] + 0)/2)\
+  }\
+  if (var[1]==2){\
+    a <- c(a, (a[length(a)] + 10)/2) \
+    b <- c(b, (b[length(b)] + 0)/2)\
+  }\
+  if (var[1]==3){\
+    a <- c(a, (a[length(a)] + 5)/2)\
+    b <- c(b, (b[length(b)] + 8.6)/2)\
+  }\
+}\
+if(cul=="Rosu")\
+{cul="red";}\
+if(cul=="Verde")\
+{cul="green";}\
+if(cul=="Portocaliu")\
+{cul="orange";}\
+if(cul=="Mov")\
+{cul="purple";}\
+\
+if(forma=="Triunghi")\
+{forma=25;}\
+if(forma=="Patrat")\
+{forma=0;}\
+if(forma=="Cerc")\
+{forma=1;}\
+if(forma=="Stea")\
+{forma=8;}\
+if(forma=="Cruce")\
+{forma=4;}\
+
+
+\
+par(bg='black',mar=rep(0,4))\
+plot(a,b, pch=forma,col=cul,cex=1/2)\
+}\
+"
+
+
+
+&nbsp;
+
+## Cod sursa pentru "server.r:" 
+
+&nbsp
+"
+library(shiny)\
+source("generare.R")\
+shinyServer(function(input, output, session) {\
+\
+  dataInput <- reactive({\
+    input$iteratii\
+    input$culoare\
+    input$forma_folosita\
+  })\
+  output$plot <- renderPlot({\
+    chaos.gen(input$iteratii,input$culoare,input$forma_folosita)\
+    \
+  })\
+\
+})\
+"
+&nbsp
+
+
+
+## Cod sursa pentru "ui.r"
+
+
+&nbsp;\
+"
+library(shiny)\
+\
+shinyUI(\
+fluidPage(tags$head(tags$link(rel = "icon", type = "image/x-icon", href =
+  "https://math.bu.edu/DYSYS/chaos-game/GRAPHICS/sierp-triangle.GIF"))),
+  \
+  fluidPage(\
+    \
+    tags$title("Chaos Game"),\
+    \
+    titlePanel("Chaos Game"),\
+    \
+    sidebarLayout(\
+      \
+      sidebarPanel(\
+        \
+        sliderInput("iteratii",\
+                    label = h5(HTML((paste0("Numar de iteratii (", em("n"),"):")))),\
+                    min = 1000, max = 10000, value = 1000, step=1000),br(),\
+        \
+        selectInput("culoare",\
+                    label = h5(HTML((paste0("Culoare:")))),\
+                    list("Portocaliu","Rosu","Verde","Mov")),\
+        \
+        selectInput("forma_folosita",\
+                    label = h5(HTML((paste0("Forma folosita pentru generarea triunghiului:")))),\
+                    list("Triunghi","Cerc","Stea","Patrat","Cruce")),\
+      
+        \
+        br(),\
+\
+        div("Ciobotaru Robert"),\
+        \
+        div("Tudor Ghidarcea"),\
+        \
+        div("Dumitrescu Dumitru-DragoÈ"),\
+        \
+        div("Grupa 241")\
+      ),\
+      mainPanel(\
+        \
+        plotOutput("plot", width="100%"), HTML("<hr style='height: 2px; color: #cc0000;\
+                                                   background-color: #cc0000; border: none;'>"),\
+        \
+        p("Reprezentare grafica Chaos Game.",style="margin-top:-10px;margin-left:150px")\
+        
+        \
+      )\
+    )\
+  )\
+)\
+"
+&nbsp;
